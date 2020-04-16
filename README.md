@@ -3,6 +3,8 @@
 This app creates offline library with books taken from [tululu.org](https://tululu.org/).
 Bootstrap is used as UI framework.
 
+You can see it on [GitHub Pages](https://esinmy.github.io/books_library_restyle_2/pages/).
+
 ### Installation
 
 In order to run it, you need Python 3.x and a few additional libs.  
