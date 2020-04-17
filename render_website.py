@@ -5,6 +5,7 @@ import argparse
 import os
 from livereload import Server
 from environs import Env
+from more_itertools import chunked
 
 DEFAULT_HOST = "localhost"
 DEFAULT_PORT = 10000
@@ -27,7 +28,7 @@ def on_reload(books, template_link, index_link):
     """Re-render pages if changes applied to template.
 
     Args:
-        books (dict): info about books, such as title, author, etc.
+        books (list): info about books, such as title, author, etc.
         template_link (str): link to template.html.
         index_link (str): link to index{}.html blueprint.
 
@@ -36,15 +37,16 @@ def on_reload(books, template_link, index_link):
 
     """
     template = env.get_template(template_link)
-    books_per_page = 20
-    total_pages = ceil(len(books) / books_per_page)
-    for cur_page, cur_book in enumerate(range(0, len(books), books_per_page), 1):
+    per_page = 20
+    total_pages = ceil(len(books) / per_page)
+    chunked_books = chunked(books, per_page)
+    for page, books in enumerate(chunked_books, 1):
         rendered_page = template.render(total_pages=total_pages,
-                                        cur_page=cur_page,
-                                        books=books[cur_book:cur_book + books_per_page])
-        if cur_page == 1:
+                                        cur_page=page,
+                                        books=books)
+        if page == 1:
             write_render("", rendered_page, index_link)
-        write_render(cur_page, rendered_page, index_link)
+        write_render(page, rendered_page, index_link)
 
 
 def write_render(page_number, render, index_link):
