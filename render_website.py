@@ -35,18 +35,22 @@ def write_render(page_number, render, index_link):
         file.write(render)
 
 
-template_link = "template.html"
-index_link = "index{}.html"
-books_path = "books.json"
+if __name__ == '__main__':
+    template_link = "template.html"
+    index_link = "index{}.html"
+    books_path = "books.json"
 
-with open(books_path, "r", encoding="utf-8") as file:
-    books = load(file)
+    host = "localhost"
+    port = 10000
 
-env = Environment(
-    loader=FileSystemLoader('.'),
-    autoescape=select_autoescape(['html', 'xml'])
-)
+    with open(books_path, "r", encoding="utf-8") as file:
+        books = load(file)
 
-server = Server()
-server.watch(template_link, lambda: on_reload(books, template_link, index_link))
-server.serve(root='.', port=10000)
+    env = Environment(
+        loader=FileSystemLoader('.'),
+        autoescape=select_autoescape(['html', 'xml'])
+    )
+
+    server = Server()
+    server.watch(template_link, lambda: on_reload(books, template_link, index_link))
+    server.serve(root='.', host=host, port=port)
