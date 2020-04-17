@@ -1,8 +1,26 @@
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from json import load
 from math import ceil
+import argparse
 import os
 from livereload import Server
+from environs import Env
+
+DEFAULT_HOST = "localhost"
+DEFAULT_PORT = 10000
+DEFAULT_JSON_PATH = "books.json"
+
+
+def create_parser():
+    parser = argparse.ArgumentParser(description="""This app allows you to run offline library""")
+    parser.add_argument("-J", "--json_path",
+                        help="provide a path to .json file with information about library")
+    parser.add_argument("-H", "--host",
+                        help="provide a host")
+    parser.add_argument("-P", "--port", type=int,
+                        help="provide a port")
+
+    return parser
 
 
 def on_reload(books, template_link, index_link):
@@ -38,10 +56,15 @@ def write_render(page_number, render, index_link):
 if __name__ == '__main__':
     template_link = "template.html"
     index_link = "index{}.html"
-    books_path = "books.json"
 
-    host = "localhost"
-    port = 10000
+    env_vars = Env()
+    env_vars.read_env()
+
+    parser = create_parser()
+    namespace = parser.parse_args()
+    host = env_vars("HOST", DEFAULT_HOST) if namespace.host is None else namespace.host
+    port = env_vars.int("PORT", DEFAULT_PORT) if namespace.port is None else namespace.port
+    books_path = env_vars("JSON_FILE", DEFAULT_JSON_PATH) if namespace.json_path is None else namespace.json_path
 
     with open(books_path, "r", encoding="utf-8") as file:
         books = load(file)
